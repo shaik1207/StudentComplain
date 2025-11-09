@@ -10,15 +10,15 @@ const bcrypt = require("bcryptjs");
 dotenv.config();
 const app = express();
 
-// 🔥 Firebase setup
+
 const serviceAccount = require("./auth.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 const firestore = admin.firestore();
-console.log("🔥 Firebase Firestore Initialized");
+console.log("Firebase Firestore Initialized");
 
-// 🧩 MongoDB setup
+
 const url =
   "mongodb+srv://sameer:sameer0407@cluster0.3m6v1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const dbName = "vit_complaints";
@@ -28,29 +28,28 @@ let db;
   try {
     const client = await MongoClient.connect(url);
     db = client.db(dbName);
-    console.log("✅ Connected to MongoDB");
+    console.log(" Connected to MongoDB");
   } catch (err) {
-    console.error("❌ MongoDB Connection Failed", err);
+    console.error("MongoDB Connection Failed", err);
   }
 })();
 
-// 🧠 Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
-// 🧠 Session middleware
+
 app.use(
   session({
-    secret: "sameer", // move to .env in production
+    secret: "sameer", 
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false },
   })
 );
 
-// 🧠 Flash messages
+/
 app.use((req, res, next) => {
   res.locals.message = req.session.message || null;
   res.locals.error = req.session.error || null;
@@ -59,13 +58,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🧍 Auth middleware
+
 const isLoggedIn = (req, res, next) => {
   if (!req.session.userID) return res.redirect("/login");
   next();
 };
 
-// 🏠 HOME PAGE
+
 app.get("/", async (req, res) => {
   try {
     const loginState = !!req.session.userID;
@@ -102,7 +101,7 @@ app.get("/", async (req, res) => {
   }
 });
 
-// 📝 SIGNUP PAGE
+
 app.get("/signup", (req, res) =>
   res.render("signup", {
     error: res.locals.error || "",
@@ -129,7 +128,7 @@ app.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Create Firebase user
+   
     const user = await admin.auth().createUser({
       email,
       password,
@@ -137,7 +136,6 @@ app.post("/signup", async (req, res) => {
     });
     console.log("✅ Firebase user created:", user.uid);
 
-    // ✅ Store user in Firestore
     await firestore.collection("users").doc(user.uid).set({
       name: firstName,
       email,
@@ -158,7 +156,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-// 🔐 LOGIN PAGE
+
 app.get("/login", (req, res) =>
   res.render("login", {
     error: res.locals.error || "",
@@ -174,7 +172,7 @@ app.post("/login", async (req, res) => {
     const userRecord = await admin.auth().getUserByEmail(email);
     let userDoc = await firestore.collection("users").doc(userRecord.uid).get();
 
-    // If user missing from Firestore → create record
+   
     if (!userDoc.exists) {
       console.log("⚠️ No Firestore record found — creating one now.");
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -197,10 +195,10 @@ app.post("/login", async (req, res) => {
 
     req.session.userID = userRecord.uid;
     req.session.message = { type: "success", text: "Login successful! 🎉" };
-    console.log("✅ Login successful:", email);
+    console.log(" Login successful:", email);
     res.redirect("/");
   } catch (error) {
-    console.error("❌ Login Error:", error);
+    console.error(" Login Error:", error);
     if (error.code === "auth/user-not-found") {
       req.session.error = "No user found with that email. Please sign up.";
     } else {
@@ -219,7 +217,7 @@ app.get("/logout", (req, res) => {
   });
 });
 
-// 📝 COMPLAINT FORM PAGE
+
 app.get("/submit-form", isLoggedIn, (req, res) =>
   res.render("form", {
     message: res.locals.message || null,
@@ -227,7 +225,6 @@ app.get("/submit-form", isLoggedIn, (req, res) =>
   })
 );
 
-// 🚀 SUBMIT COMPLAINT
 app.post("/submit-complaint", isLoggedIn, async (req, res) => {
   try {
     const complaint = {
@@ -235,27 +232,27 @@ app.post("/submit-complaint", isLoggedIn, async (req, res) => {
       registerNo: req.body.registerNo || "",
       department: req.body.department,
       typeOfComplaint: req.body.typeOfComplaint,
-      complaintText: req.body.complaintText, // ✅ Fixed name
+      complaintText: req.body.complaintText, 
       likes: 0,
       createdAt: new Date(),
     };
 
     await db.collection("complaints").insertOne(complaint);
-    console.log("✅ Complaint saved:", complaint);
+    console.log(" Complaint saved:", complaint);
 
     req.session.message = {
       type: "success",
-      text: "Complaint submitted successfully ✅",
+      text: "Complaint submitted successfully ",
     };
     res.redirect("/");
   } catch (error) {
-    console.error("❌ Complaint submission failed:", error);
+    console.error(" Complaint submission failed:", error);
     req.session.error = "Error submitting complaint. Please try again.";
     res.redirect("/submit-form");
   }
 });
 
-// ❤️ LIKE COMPLAINT
+
 app.post("/liked", isLoggedIn, async (req, res) => {
   try {
     const { like } = req.body;
@@ -266,13 +263,13 @@ app.post("/liked", isLoggedIn, async (req, res) => {
     req.session.message = { type: "success", text: "You liked a complaint 👍" };
     res.redirect("/");
   } catch (error) {
-    console.error("❌ Error liking complaint:", error);
+    console.error(" Error liking complaint:", error);
     req.session.error = "Error liking complaint.";
     res.redirect("/");
   }
 });
 
-// ⚡ SERVER START
+
 const PORT = 5000;
 app.listen(PORT, () =>
   console.log(`🚀 Server running successfully on http://localhost:${PORT}`)
