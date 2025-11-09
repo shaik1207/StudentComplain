@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sign Up | Complaint Portal</title>
+<title>Complaint Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  /* (use the CSS you already have — skip pasting here to save space) */
+  
   :root {
   --bg1: #071226;
   --bg2: #112340;
@@ -16,7 +16,7 @@
   --max-width: 1200px;
 }
 
-/* reset */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -31,7 +31,7 @@ body {
   overflow-x: hidden;
 }
 
-/* page wrapper */
+
 .page {
   min-height: 100vh;
   display: grid;
@@ -39,7 +39,7 @@ body {
   padding: 24px;
 }
 
-/* frame layout */
+
 .frame {
   width: 100%;
   max-width: var(--max-width);
@@ -57,7 +57,7 @@ body {
   );
 }
 
-/* LEFT - form area */
+
 .left {
   display: flex;
   align-items: center;
@@ -87,7 +87,7 @@ body {
   }
 }
 
-/* Brand section */
+
 .brand {
   text-align: center;
   margin-bottom: 16px;
@@ -105,7 +105,6 @@ body {
   margin-top: 6px;
 }
 
-/* Form */
 form {
   display: flex;
   flex-direction: column;
@@ -148,7 +147,7 @@ input:focus {
   transform: translateY(-1px);
 }
 
-/* Buttons */
+
 .actions {
   display: flex;
   gap: 12px;
@@ -178,7 +177,7 @@ input:focus {
   margin-top: 10px;
 }
 
-/* RIGHT - background image */
+
 .right {
   position: relative;
   overflow: hidden;
@@ -275,7 +274,7 @@ input:focus {
   opacity: 0.9;
 }
 
-/* Tablet and below */
+
 @media (max-width: 1024px) {
   .frame {
     grid-template-columns: 1fr;
@@ -304,7 +303,7 @@ input:focus {
   }
 }
 
-/* Mobile view */
+
 @media (max-width: 600px) {
   .page {
     padding: 16px;
@@ -352,7 +351,7 @@ input:focus {
   }
 }
 
-/* Very short screens (foldables / landscape phones) */
+
 @media (max-height: 520px) {
   .frame {
     height: auto;
@@ -381,7 +380,7 @@ input:focus {
             <p>Sign up to post and manage complaints securely.</p>
           </div>
 
-          <!-- NOTE: name="username" to match server -->
+         
           <form action="/signup" method="post" autocomplete="on" novalidate>
             <div class="row">
               <div class="col">
@@ -416,7 +415,7 @@ input:focus {
         </div>
       </div>
 
-      <!-- RIGHT (unchanged) -->
+     
       <div class="right" aria-hidden="true">
         <div class="bg" aria-hidden="true"></div>
         <div class="overlay" aria-hidden="true"></div>
@@ -433,7 +432,7 @@ input:focus {
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // safe injection: message & error come from res.render
+
   const message = <%- JSON.stringify(message || null) %>;
   const error = <%- JSON.stringify(error || null) %>;
 
