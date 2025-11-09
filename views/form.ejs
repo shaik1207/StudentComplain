@@ -2,195 +2,309 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit a Complaint</title>
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit a Complaint</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #6e00ff, #00c6ff);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: bgShift 10s ease infinite alternate;
+    }
+
+    @keyframes bgShift {
+      0% {
+        background: linear-gradient(135deg, #6e00ff, #00c6ff);
+      }
+
+      100% {
+        background: linear-gradient(135deg, #00c6ff, #6e00ff);
+      }
+    }
+
+    nav {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 1rem 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      color: #fff;
+    }
+
+    .navbar-brand {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .home-btn {
+      color: white;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .home-btn:hover {
+      background: #fff;
+      color: #007bff;
+      transform: scale(1.05);
+    }
+
+    .form-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-grow: 1;
+      padding: 2rem 1rem;
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      padding: 2rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 650px;
+      animation: fadeInUp 0.8s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #007bff;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+      transform: scale(1.02);
+      outline: none;
+    }
+
+    /* Enhanced Select Dropdown */
+    select {
+      appearance: none;
+      background: rgba(240, 248, 255, 0.9);
+      background-image: url("https://cdn-icons-png.flaticon.com/512/2985/2985150.png");
+      background-repeat: no-repeat;
+      background-size: 18px;
+      background-position: right 15px center;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    select:hover {
+      background-color: rgba(230, 240, 255, 1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .image-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 2px dashed #007bff;
+      border-radius: 15px;
+      padding: 1.2rem;
+      background: rgba(240, 248, 255, 0.6);
+      transition: all 0.4s ease;
+    }
+
+    .image-upload:hover {
+      background: rgba(240, 248, 255, 0.95);
+      transform: scale(1.03);
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    }
+
+    .image-upload input {
+      display: none;
+    }
+
+    .upload-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      color: #007bff;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .upload-label:hover {
+      color: #0056b3;
+    }
+
+    .upload-preview {
+      margin-top: 1rem;
+      display: none;
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    button {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #007bff, #00bfff);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #0056b3, #0096ff);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
 </head>
-<style>
-    
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-nav {
-    width: 100%;
-    background-color: #007BFF;
-    padding: 1rem 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    color: white;
-}
-
-.navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.home-btn {
-    color: white;
-    text-decoration: none;
-    background-color: #0056b3;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.home-btn:hover {
-    background-color: #004494;
-}
-
-.form-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 2rem;
-    padding: 0 1rem;
-}
-
-.form-container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 600px;
-}
-
-h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #333;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #333;
-}
-
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="email"],
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-
-.form-group textarea {
-    resize: vertical;
-}
-
-button {
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 5px;
-    background-color: #007BFF;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-</style>
 
 <body>
-    <nav>
-        <div class="navbar">
-            <div class="navbar-brand"> Complaints</div>
-            <a href="/" class="home-btn">Home</a>
-        </div>
-    </nav>
-
-    <div class="form-wrapper">
-        <div class="form-container">
-            <h1>Submit a Complaint</h1>
-            <form action="/submit-complaint" method="POST" id="submitForm">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" placeholder="Your full name" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="register-no">Register No</label>
-                    <input type="text" id="register-no" name="register-no" placeholder="Your register number" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="department">Department</label>
-                    <select id="department" name="department" required>
-                        <option value="">Select your department</option>
-                        <option value="cse">CSE</option>
-                        <option value="it">IT</option>
-                        <option value="ece">ECE</option>
-                        <option value="eee">EEE</option>
-                        <option value="mech">MECH</option>
-                        <option value="civil">Civil </option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="type-of-complaint">Type of Complaint</label>
-                    <input type="text" id="type-of-complaint" name="type-of-complaint"
-                        placeholder="Enter type of complaint" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="complaint">Complaint</label>
-                    <textarea id="complaint" name="complaint" rows="5" placeholder="Describe your complaint"
-                        required></textarea>
-                </div>
-
-                <button type="submit" id="submitButton" >Submit Complaint</button>
-            </form>
-        </div>
+  <nav>
+    <div class="navbar">
+      <div class="navbar-brand">Complaints</div>
+      <a href="/" class="home-btn">Home</a>
     </div>
+  </nav>
 
-  
+  <div class="form-wrapper">
+    <div class="form-container">
+      <h1>Submit a Complaint</h1>
+      <form action="/submit-complaint" method="POST" enctype="multipart/form-data" id="submitForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Your full name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="register-no">Register Number</label>
+          <input type="text" id="register-no" name="registerNo" placeholder="Your register number" required />
+        </div>
+
+        <div class="form-group">
+          <label for="department">Department</label>
+          <select id="department" name="department" required>
+            <option value="">Select your department</option>
+            <option value="CSE">CSE</option>
+            <option value="IT">IT</option>
+            <option value="ECE">ECE</option>
+            <option value="EEE">EEE</option>
+            <option value="MECH">MECH</option>
+            <option value="CIVIL">CIVIL</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="type-of-complaint">Type of Complaint</label>
+          <input type="text" id="type-of-complaint" name="typeOfComplaint" placeholder="Enter type of complaint" required />
+        </div>
+
+        <div class="form-group">
+          <label for="complaint">Complaint Details</label>
+          <textarea id="complaint" name="complaintText" rows="5" placeholder="Describe your complaint" required></textarea>
+        </div>
+
+
+        <button type="submit" id="submitButton">Submit Complaint</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+   
+    document.getElementById("submitForm").addEventListener("submit", function () {
+      alert("✅ Complaint submitted successfully!");
+    });
+  </script>
 </body>
-<script>
-    document.getElementById("submitForm").onsubmit = event => {
-        alert("Form submitted successfully");
-    }
-</script>
 
 </html>

@@ -1,194 +1,279 @@
-const express = require('express');
-const { MongoClient, ObjectId } = require('mongodb');
-const bodyParser = require('body-parser');
-const path = require('path');
-const dotenv = require('dotenv')
-const account = require('./auth.json')
-const bcrypt = require('bcrypt')
-const admin = require('firebase-admin');
-const session = require('express-session');
-const saltRounds = 10
+const express = require("express");
+const { MongoClient, ObjectId } = require("mongodb");
+const bodyParser = require("body-parser");
+const path = require("path");
+const dotenv = require("dotenv");
+const admin = require("firebase-admin");
+const session = require("express-session");
+const bcrypt = require("bcryptjs");
 
+dotenv.config();
 const app = express();
 
-dotenv.config()
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
+// 🔥 Firebase setup
+const serviceAccount = require("./auth.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+const firestore = admin.firestore();
+console.log("🔥 Firebase Firestore Initialized");
 
-app.set('view engine', 'ejs');
-app.use(session({
-    secret: "Sameer",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-}))
-
-const url = 'mongodb+srv://sameer:sameer0407@cluster0.3m6v1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-const dbName = 'complaintsDB';
+// 🧩 MongoDB setup
+const url =
+  "mongodb+srv://sameer:sameer0407@cluster0.3m6v1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const dbName = "vit_complaints";
 let db;
 
 (async () => {
-    try {
-        const client = await MongoClient.connect(url);
-        console.log('Connected to Database...');
-        db = client.db(dbName);
-    } catch (err) {
-        console.error('Failed to connect to MongoDB', err);
-    }
+  try {
+    const client = await MongoClient.connect(url);
+    db = client.db(dbName);
+    console.log("✅ Connected to MongoDB");
+  } catch (err) {
+    console.error("❌ MongoDB Connection Failed", err);
+  }
 })();
 
+// 🧠 Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+app.set("view engine", "ejs");
 
+// 🧠 Session middleware
+app.use(
+  session({
+    secret: "sameer", // move to .env in production
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+  })
+);
 
-admin.initializeApp({
-    credential: admin.credential.cert(account),
+// 🧠 Flash messages
+app.use((req, res, next) => {
+  res.locals.message = req.session.message || null;
+  res.locals.error = req.session.error || null;
+  delete req.session.message;
+  delete req.session.error;
+  next();
 });
 
-const firebaseDB = admin.firestore();
+// 🧍 Auth middleware
+const isLoggedIn = (req, res, next) => {
+  if (!req.session.userID) return res.redirect("/login");
+  next();
+};
 
-app.get("/signup", (req, res) => {
-    res.render("signup", { error: "" });
-});
+// 🏠 HOME PAGE
+app.get("/", async (req, res) => {
+  try {
+    const loginState = !!req.session.userID;
+    const selectedDept = req.query.department || "All";
+    const query =
+      selectedDept && selectedDept !== "All" ? { department: selectedDept } : {};
 
-app.post('/signup', async (req, res) => {
-    const name = req.body.username;
-    const email = req.body.email;
-    const password = req.body.password;
+    const complaints = await db
+      .collection("complaints")
+      .find(query)
+      .sort({ likes: -1, createdAt: -1 })
+      .toArray();
 
-    try {
-        const user = await admin.auth().createUser({
-            email: email,
-            password: password,
-            displayName: name,
-        });
-
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        await firebaseDB.collection("users").doc(user.uid).set({
-            name: name,
-            email: email,
-            password: hashedPassword
-        });
-        
-        req.session.userID = user.uid
-        res.redirect("/");
-    } catch (error) {
-        res.render('signup', { error: error })
-        
+    let username = "Guest";
+    if (req.session.userID) {
+      const userDoc = await firestore
+        .collection("users")
+        .doc(req.session.userID)
+        .get();
+      if (userDoc.exists) username = userDoc.data().name;
     }
+
+    res.render("home", {
+      complaints,
+      loginState,
+      username,
+      selectedDept,
+      message: res.locals.message,
+      error: res.locals.error,
+    });
+  } catch (error) {
+    console.error("❌ Error loading homepage:", error);
+    res.status(500).send(`<h2>Error loading homepage: ${error.message}</h2>`);
+  }
 });
 
+// 📝 SIGNUP PAGE
+app.get("/signup", (req, res) =>
+  res.render("signup", {
+    error: res.locals.error || "",
+    message: res.locals.message || null,
+  })
+);
 
+app.post("/signup", async (req, res) => {
+  const { firstName, email, password } = req.body;
+  console.log("📥 Signup attempt:", email);
 
-app.get("/login", (req, res) => {
-    res.render("login", { error: "" });
+  try {
+    if (!firstName || !email || !password)
+      return res.render("signup", {
+        error: "All fields are required.",
+        message: null,
+      });
+
+    if (password.length < 6)
+      return res.render("signup", {
+        error: "Password must be at least 6 characters long.",
+        message: null,
+      });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // ✅ Create Firebase user
+    const user = await admin.auth().createUser({
+      email,
+      password,
+      displayName: firstName,
+    });
+    console.log("✅ Firebase user created:", user.uid);
+
+    // ✅ Store user in Firestore
+    await firestore.collection("users").doc(user.uid).set({
+      name: firstName,
+      email,
+      password: hashedPassword,
+      createdAt: new Date(),
+    });
+
+    req.session.userID = user.uid;
+    req.session.message = { type: "success", text: "Signup successful! 👋" };
+    res.redirect("/");
+  } catch (error) {
+    console.error("❌ Signup Error:", error);
+    const msg =
+      error.code === "auth/email-already-exists"
+        ? "Email already registered. Please login."
+        : "Signup failed. Try again.";
+    res.render("signup", { error: msg, message: null });
+  }
 });
+
+// 🔐 LOGIN PAGE
+app.get("/login", (req, res) =>
+  res.render("login", {
+    error: res.locals.error || "",
+    message: res.locals.message || null,
+  })
+);
 
 app.post("/login", async (req, res) => {
-    try {
-        const userRecord = await admin.auth().getUserByEmail(req.body.email);
-        const userDetails = await firebaseDB.collection('users').doc(userRecord.uid).get();
+  const { email, password } = req.body;
+  console.log("📥 Login attempt:", email);
 
-        if (!userDetails.exists) {
-            
-            return res.render("/login", { error: "Invalid Credentials.." });
-        }
+  try {
+    const userRecord = await admin.auth().getUserByEmail(email);
+    let userDoc = await firestore.collection("users").doc(userRecord.uid).get();
 
-        const userData = userDetails.data();
-        const storedPassword = userData.password;
-
-        const result = await bcrypt.compare(req.body.password, storedPassword);
-
-        if (result) {
-            
-            req.session.userID = userRecord.uid
-            res.redirect("/");
-        } else {
-            res.redirect("/login");
-        }
-    } catch (error) {
-        console.error("Error during login:", error);
-        res.render('login')
+    // If user missing from Firestore → create record
+    if (!userDoc.exists) {
+      console.log("⚠️ No Firestore record found — creating one now.");
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await firestore.collection("users").doc(userRecord.uid).set({
+        name: userRecord.displayName || "User",
+        email: userRecord.email,
+        password: hashedPassword,
+        createdAt: new Date(),
+      });
+      userDoc = await firestore.collection("users").doc(userRecord.uid).get();
     }
+
+    const userData = userDoc.data();
+    const validPassword = await bcrypt.compare(password, userData.password);
+
+    if (!validPassword) {
+      req.session.error = "Invalid password. Please try again.";
+      return res.redirect("/login");
+    }
+
+    req.session.userID = userRecord.uid;
+    req.session.message = { type: "success", text: "Login successful! 🎉" };
+    console.log("✅ Login successful:", email);
+    res.redirect("/");
+  } catch (error) {
+    console.error("❌ Login Error:", error);
+    if (error.code === "auth/user-not-found") {
+      req.session.error = "No user found with that email. Please sign up.";
+    } else {
+      req.session.error = "Login failed. Please try again.";
+    }
+    res.redirect("/login");
+  }
 });
 
-
-app.get('/', async (req, res) => {
-    try {
-        const loginState = !!req.session.userID
-        const complaintsCollection = db.collection('complaints');
-        const complaints = await complaintsCollection.find({}).sort({ likes: -1 }).toArray();
-        res.render('home', { complaints: complaints, loginState: loginState });
-    } catch (err) {
-        console.error('Error fetching complaints:', err);
-        
-    }
+// 🚪 LOGOUT
+app.get("/logout", (req, res) => {
+  req.session.message = { type: "success", text: "Logout successful 👋" };
+  req.session.destroy(() => {
+    console.log("👋 User logged out");
+    res.redirect("/");
+  });
 });
 
-app.get('/submit-form', (req, res) => {
-    res.render('form');
-})
+// 📝 COMPLAINT FORM PAGE
+app.get("/submit-form", isLoggedIn, (req, res) =>
+  res.render("form", {
+    message: res.locals.message || null,
+    error: res.locals.error || null,
+  })
+);
 
-app.post('/submit-complaint', async (req, res) => {
-    try {
-        const complaintsCollection = db.collection('complaints');
-        const complaint = {
-            name: req.body.name,
-            registerNo: req.body['register-no'],
-            department: req.body.department,
-            typeOfComplaint: req.body['type-of-complaint'],
-            complaintText: req.body.complaint,
-            likes: 0
-        };
-        
-        await complaintsCollection.insertOne(complaint);
-        
-        res.redirect('/');
-    } catch (err) {
-        console.error('Error submitting complaint:', err);
-        
-    }
+// 🚀 SUBMIT COMPLAINT
+app.post("/submit-complaint", isLoggedIn, async (req, res) => {
+  try {
+    const complaint = {
+      name: req.body.name,
+      registerNo: req.body.registerNo || "",
+      department: req.body.department,
+      typeOfComplaint: req.body.typeOfComplaint,
+      complaintText: req.body.complaintText, // ✅ Fixed name
+      likes: 0,
+      createdAt: new Date(),
+    };
+
+    await db.collection("complaints").insertOne(complaint);
+    console.log("✅ Complaint saved:", complaint);
+
+    req.session.message = {
+      type: "success",
+      text: "Complaint submitted successfully ✅",
+    };
+    res.redirect("/");
+  } catch (error) {
+    console.error("❌ Complaint submission failed:", error);
+    req.session.error = "Error submitting complaint. Please try again.";
+    res.redirect("/submit-form");
+  }
 });
 
+// ❤️ LIKE COMPLAINT
+app.post("/liked", isLoggedIn, async (req, res) => {
+  try {
+    const { like } = req.body;
+    await db
+      .collection("complaints")
+      .updateOne({ _id: new ObjectId(like) }, { $inc: { likes: 1 } });
 
-app.post('/liked',  async (req, res) => {
-    const like = req.body.like;
-    
-    const complaintsCollection = db.collection('complaints');
-    await complaintsCollection.updateOne({ _id: new ObjectId(like) }, { $inc: { likes: 1 } })
-    
-    res.redirect('/')
-})
-
-app.get('/post/:id', async (req, res) => {
-    const id = req.params.id
-    try {
-        const complaintsCollection = db.collection('complaints')
-        const complaints = await complaintsCollection.findOne({ _id: new ObjectId(id) })
-        
-        res.render('post', { complaint: complaints })
-    } catch (error) {
-        console.error(error.message)
-    }
-})
-
-app.post('/filter', async (req, res) => {
-    const dept = req.body.deptValue;
-    const loginState = !!req.session.userID
-    let filteredData;
-    try {
-        const complaintsCollection = db.collection('complaints')
-        const complaints = await complaintsCollection.find().toArray()
-        if (dept === 'all') {
-            filteredData = complaints
-        } else {
-            filteredData = complaints.filter((data) => data.department === dept)
-        }
-    } catch (error) {
-        console.error(error.message)
-    }
-    res.render('home', { complaints: filteredData, loginState: loginState })
-})
-
-const PORT = 4000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}...`);
+    req.session.message = { type: "success", text: "You liked a complaint 👍" };
+    res.redirect("/");
+  } catch (error) {
+    console.error("❌ Error liking complaint:", error);
+    req.session.error = "Error liking complaint.";
+    res.redirect("/");
+  }
 });
+
+// ⚡ SERVER START
+const PORT = 5000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server running successfully on http://localhost:${PORT}`)
+);

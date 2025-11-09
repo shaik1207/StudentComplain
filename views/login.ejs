@@ -1,113 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-
-</head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Login | Complaints Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 <style>
-    
+:root {
+  --bg1: #071226;
+  --bg2: #112340;
+  --accent: #00d4ff;
+  --card-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --max-width: 1200px;
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+html,
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  height: 100%;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, var(--bg1), var(--bg2));
+  color: #e9f2fb;
+  overflow-x: hidden;
 }
 
-form {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+/* PAGE CONTAINER */
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
 }
 
-h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #333;
+/* MAIN FRAME */
+.frame {
+  width: 100%;
+  max-width: var(--max-width);
+  height: auto;
+  min-height: calc(100vh - 56px);
+  border-radius: 16px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 45% 55%;
+  box-shadow: 0 30px 60px rgba(2, 8, 23, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  );
+}
+
+/* LEFT CARD AREA */
+.left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(255, 255, 255, 0.02)
+  );
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  padding: 36px;
+  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px) saturate(120%);
+  box-shadow: 0 12px 30px rgba(3, 10, 30, 0.5);
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 0.2s ease;
+}
+
+@media (min-width: 1000px) {
+  .card:hover {
+    transform: translateY(-6px) rotateX(2deg);
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* BRAND TITLE */
+.brand {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.brand h1 {
+  color: var(--accent);
+  letter-spacing: 0.6px;
+  font-size: 1.8rem;
+  text-shadow: 0 6px 18px rgba(0, 212, 255, 0.12);
+}
+.brand p {
+  color: #cfefff;
+  opacity: 0.85;
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+
+/* FORM INPUTS */
+.form {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #333;
+  font-size: 0.85rem;
+  color: rgba(235, 245, 255, 0.85);
+  margin-bottom: 4px;
 }
-
 input[type="email"],
-input[type="password"] {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  );
+  color: #eaf7ff;
+  font-size: 0.98rem;
+  outline: none;
+  transition: box-shadow 0.18s, border-color 0.18s, transform 0.12s;
+}
+input:focus {
+  border-color: rgba(0, 212, 255, 0.9);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.06);
+  transform: translateY(-1px);
 }
 
-button {
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 5px;
-    background-color: #007BFF;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+/* BUTTONS */
+.actions {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-button:hover {
-    background-color: #0056b3;
+.btn {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background: linear-gradient(90deg, var(--accent), #0077d9);
+  color: #032230;
+  box-shadow: 0 10px 30px rgba(0, 212, 255, 0.12);
+  transition: transform 0.18s ease, box-shadow 0.18s;
+}
+.btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(0, 212, 255, 0.2);
 }
 
-p {
+/* GOOGLE BUTTON */
+.google-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #eaf7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s ease;
+}
+.google-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+}
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* MUTED LINK TEXT */
+.muted {
+  color: #bcdff1;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 14px;
+}
+
+/* RIGHT SIDE IMAGE */
+.right {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #081027;
+  min-height: 100%;
+}
+
+.bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("https://github.com/shaik1207/images/blob/main/Gemini_Generated_Image_6z12h16z12h16z12.png?raw=true");
+  background-size: cover;
+  background-position: center;
+  filter: saturate(90%) contrast(92%);
+  animation: slow-zoom 18s ease-in-out infinite;
+}
+
+@keyframes slow-zoom {
+  0% {
+    transform: scale(1) translateY(0px);
+  }
+  50% {
+    transform: scale(1.03) translateY(-6px);
+  }
+  100% {
+    transform: scale(1) translateY(0px);
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(3, 10, 30, 0.35),
+    rgba(0, 0, 0, 0.2)
+  );
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* TEXT BLOCK ON IMAGE */
+.text-block {
+  position: relative;
+  z-index: 2;
+  color: #dff8ff;
+  text-align: left;
+  max-width: 52ch;
+  padding: 36px;
+  transform: translateX(-8%);
+  animation: textIn 1.2s ease backwards;
+}
+@keyframes textIn {
+  from {
+    transform: translateX(10%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.text-block h2 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: #eafcff;
+  text-shadow: 0 6px 30px rgba(0, 212, 255, 0.06);
+}
+.text-block p {
+  font-size: 1.05rem;
+  color: #d4eefc;
+  opacity: 0.95;
+}
+
+.corner {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 200, 255, 0.9);
+  font-weight: 700;
+  font-size: 18px;
+  transform: rotate(18deg);
+  opacity: 0.9;
+}
+
+/* TABLET RESPONSIVENESS */
+@media (max-width: 1024px) {
+  .frame {
+    grid-template-columns: 1fr;
+    border-radius: 12px;
+    min-height: auto;
+  }
+
+  .left {
+    order: 1;
+    padding: 40px 28px;
+  }
+
+  .right {
+    order: 2;
+    min-height: 40vh;
+  }
+
+  .text-block {
+    transform: none;
+    padding: 24px;
     text-align: center;
-    margin-top: 1rem;
+  }
+
+  .text-block h2 {
+    font-size: 1.6rem;
+  }
+
+  .bg {
+    background-position: center top;
+  }
 }
 
-a {
-    color: #007BFF;
-    text-decoration: none;
-}
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 600px) {
+  .page {
+    padding: 16px;
+  }
 
-a:hover {
-    text-decoration: underline;
-}
+  .frame {
+    border-radius: 10px;
+  }
 
-p[style="color: red;"] {
-    text-align: center;
-    margin-top: 1rem;
-    color: red;
+  .card {
+    padding: 22px;
+  }
+
+  .brand h1 {
+    font-size: 1.2rem;
+  }
+
+  .brand p {
+    font-size: 0.85rem;
+  }
+
+  .text-block h2 {
+    font-size: 1.3rem;
+  }
+
+  .text-block p {
+    font-size: 0.95rem;
+  }
+
+  .left {
+    padding: 24px 18px;
+  }
+
+  .right {
+    min-height: 35vh;
+  }
+
+  input {
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+  }
 }
 
 </style>
-
+</head>
 <body>
-    <form action="/login" method="post">
-        <h2>
-            Login</h2>
-        <label for="email">Email</label>
-        <input type="email" name="email" id="">
-        <label for="password">password</label>
-        <input type="password" name="password" id="">
-        <button type="submit">Submit</button>
-        <p>Don't have Account? <a href="/signup">register</a></p>
-        
-            
-        
-    </form>
-</body>
+<div class="page">
+  <div class="frame" role="main" aria-labelledby="login-title">
+    <div class="left">
+      <div class="card">
+        <div class="brand" id="login-title">
+          <h1>Welcome Back</h1>
+          <p>Sign in to raise complaints anonymously or with your account</p>
+        </div>
 
+        <form class="form" action="/login" method="post" autocomplete="on">
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required placeholder="you@college.edu">
+          </div>
+
+          <div>
+            <label for="pwd">Password</label>
+            <input id="pwd" name="password" type="password" required placeholder="••••••••">
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">Login</button>
+          </div>
+
+          <div class="muted">
+            Don't have an account? <a href="/signup" style="color:var(--accent)">Register</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="bg"></div>
+      <div class="overlay"></div>
+      <div class="text-block">
+        <h2>Register Your Complaint Here</h2>
+        <p>Your voice matters. Report issues and help improve campus life — securely and quickly.</p>
+      </div>
+      <div class="corner">★</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  const message = <%- JSON.stringify(message || null) %>;
+  const error = <%- JSON.stringify(error || null) %>;
+
+  if (message) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: message.type || 'success',
+      title: message.text || 'Success!',
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+    });
+  }
+
+  if (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error,
+      confirmButtonColor: '#007bff',
+    });
+  }
+</script>
+
+
+</body>
 </html>

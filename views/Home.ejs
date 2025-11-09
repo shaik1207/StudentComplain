@@ -1,226 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Complaints | Dashboard</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complaints</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-</head>
-<style>
-    
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    background-image: conic-gradient(from 36deg at 20% 80%, #A100FFFF 0%, #000000 25%, #119CFDFF 30%);
-    background-repeat: no-repeat;
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
 
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-}
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        min-height: 100vh;
+        color: #333;
+        overflow-x: hidden;
+      }
 
+      /* Navbar */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        color: #fff;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background-color: #007BFF;
-    color: white;
-}
+      .navbar-brand {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+      }
 
-.navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
+      .navbar div a {
+        color: white;
+        text-decoration: none;
+        margin-left: 1rem;
+        padding: 0.6rem 1.2rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
 
-.navbar div a {
-    color: white;
-    text-decoration: none;
-    margin-left: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #0056b3;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
+      .navbar div a:hover {
+        background: #fff;
+        color: #2575fc;
+        transform: scale(1.05);
+      }
 
-.navbar div a:hover {
-    background-color: #004494;
-}
+      /* Filter */
+      .filter {
+        width: 90%;
+        max-width: 400px;
+        margin: 2rem auto;
+        background: rgba(255, 255, 255, 0.25);
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease-in-out;
+      }
 
+      .filter:hover {
+        transform: translateY(-3px);
+      }
 
-.filter {
-    margin: 2rem;
-    padding: 1rem;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 20rem;
-    margin-top: 0.5rem;
-    margin-left: 35rem;
-}
+      .filter h3 {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #fff;
+        letter-spacing: 0.5px;
+      }
 
-.filter h3 {
-    margin-bottom: 1rem;
-}
+      .filter select {
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-.filter select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
+      .filter select:hover {
+        transform: scale(1.02);
+      }
 
+      /* Page layout */
+      main {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-main {
-    padding: 2rem;
-    border: 1px solid #0000;
-}
+      h1 {
+        text-align: center;
+        color: #fff;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        letter-spacing: 0.5px;
+      }
 
-h1 {
-    text-align: center;
-    margin-bottom: 2rem;
-}
+      /* Complaint cards grid */
+      .complaints-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 1200px;
+        justify-items: center;
+      }
 
-.complaints-list {
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
-    margin-left: 5rem;
-    flex-wrap: wrap;
-}
+      /* Complaint card */
+      .complaint {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 1.2rem;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        animation: fadeInUp 0.5s ease-in-out;
+      }
 
-.complaint {
-    background-color: white;
-    padding: 1rem;
-    border-radius: 1.5rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
-   
-}
+      .complaint:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+      }
 
-.user-info h2 {
-    margin-bottom: 0.5rem;
-}
+      .complaint img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      }
 
-.like-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
+      .user-info h3 {
+        color: #2575fc;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        text-transform: capitalize;
+      }
 
+      p span {
+        font-weight: 600;
+        color: #000;
+      }
 
-.like-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #007BFF;
-    font-size: 1.5rem;
-    transition: color 0.3s ease;
-    
-}
+      .like-section {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
 
-.like-btn:hover {
-    color: rgb(213, 89, 89);
-}
+      .like-btn {
+        background: none;
+        border: none;
+        color: #2575fc;
+        font-size: 1.6rem;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
 
-.like-count {
-    font-size: 1.2rem;
-}
-.h3{
-    color: red;
-}
+      .like-btn:hover {
+        color: #ff4757;
+        transform: scale(1.2);
+      }
 
-</style>
+      .like-count {
+        font-size: 1.1rem;
+        color: #000;
+      }
 
-<body>
-    <nav>
-        <div class="navbar">
-            <div class="navbar-brand">Complaints</div>
-            <div>
-            
-                   
-        
-                        <a class="submit-btn" href="/login">Login/SignUp</a>
-                        <a class="submit-btn" href="/submit-form">Submit a complaint</a>
-                        
-            </div>
-        </div>
+      .no-complaints {
+        text-align: center;
+        font-size: 1.3rem;
+        color: white;
+        opacity: 0.9;
+        animation: fadeIn 0.6s ease-in-out;
+        grid-column: 1 / -1;
+        margin-top: 3rem;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 992px) {
+        .complaints-list {
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .filter {
+          width: 90%;
+        }
+
+        .complaints-list {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        main {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ✅ Navbar -->
+    <nav class="navbar">
+      <div class="navbar-brand">Complaints Portal</div>
+      <div>
+        <% if (loginState) { %>
+        <span style="margin-right: 10px;">Welcome, <%= username %>!</span>
+        <a href="/logout">Logout</a>
+        <a href="/submit-form">Submit Complaint</a>
+        <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/signup">Sign Up</a>
+        <% } %>
+      </div>
     </nav>
 
-    <form method='POST' action='/filter' class='filter'>
-        <h3 style="color: #444;">Select a Filter</h3>
-        <select name='deptValue' onchange='this.form.submit()'>
-            <option value='' hidden>Department</option>
-            <option value='cse'>
-                CSE
-            </option>
-            <option value='it'>
-                IT
-            </option>
-            <option value='csbs'>
-                CS&BS
-            </option>
-            <option value='aids'>
-                AI&DS
-            </option>
-            <option value='aiml'>
-                AI&ML
-            </option>
-            <option value="ece">
-                ECE
-            </option>
-            <option value="eee">
-                EEE
-            </option>
-            <hr />
-            <option value='all'>
-                &#10006; ALL
-            </option>
-        </select>
+    <!-- ✅ Filter -->
+    <form method="GET" action="/" class="filter">
+      <h3>Filter by Department</h3>
+      <select name="department" onchange="this.form.submit()">
+        <option value="All" <%= selectedDept==='All' ? 'selected' : '' %>>All Departments</option>
+        <option value="CSE" <%= selectedDept==='CSE' ? 'selected' : '' %>>CSE</option>
+        <option value="IT" <%= selectedDept==='IT' ? 'selected' : '' %>>IT</option>
+        <option value="CSBS" <%= selectedDept==='CSBS' ? 'selected' : '' %>>CS&BS</option>
+        <option value="AIDS" <%= selectedDept==='AIDS' ? 'selected' : '' %>>AI&DS</option>
+        <option value="AIML" <%= selectedDept==='AIML' ? 'selected' : '' %>>AI&ML</option>
+        <option value="ECE" <%= selectedDept==='ECE' ? 'selected' : '' %>>ECE</option>
+        <option value="EEE" <%= selectedDept==='EEE' ? 'selected' : '' %>>EEE</option>
+      </select>
     </form>
 
+    <!-- ✅ Complaints -->
     <main>
-        <h1>Registered Complaints</h1>
-        <div class="complaints-list">
-            <% complaints.map((complaint)=> { %>
-                <div class="complaint">
-                    <div class="user-info">
-                        <h3 class="h3">
-                            Name:<%= complaint.name %>
-                        </h3>
-                    </div>
-                    <p>
-                        <span>Complaint Type:</span> <%= complaint.typeOfComplaint %>
-                    </p>
-                    <p>
-                        <span>Complaint:</span><%= complaint.complaintText %>
-                    </p>
-                    <p>
-                        <span>Department:</span><%= complaint.department %>
-                    </p>
-                    <div class="like-section">
-                        
-                        <form action="/liked" method="post">
-                            <input type='hidden' value='<%= complaint._id %>' name=like />
-                            <button class="like-btn"><i class="fa fa-thumbs-up" style="font-size:36px"></i></button>
-                        </form>
-                        <span class="like-count">
-                            <%= complaint.likes %>
-                        </span>
-                    </div>
-                </div>
-                <% }); %>
+      <h1>Registered Complaints</h1>
+      <div class="complaints-list">
+        <% if (complaints.length === 0) { %>
+        <div class="no-complaints">
+          <i class="fa fa-exclamation-circle"></i> No complaints registered yet.
         </div>
+        <% } else { %>
+        <% complaints.forEach((complaint) => { %>
+        <div class="complaint">
+          <img src="https://www.echealth.gov.za/images/complaints-management-software.jpg" alt="" />
+          <div class="user-info">
+            <h3><%= complaint.name %></h3>
+          </div>
+          <p><span>Complaint Type:</span> <%= complaint.typeOfComplaint %></p>
+          <p><span>Complaint:</span> <%= complaint.complaintText %></p>
+          <p><span>Department:</span> <%= complaint.department %></p>
+          <div class="like-section">
+            <form action="/liked" method="post">
+              <input type="hidden" name="like" value="<%= complaint._id %>" />
+              <button class="like-btn" type="submit">
+                <i class="fa fa-thumbs-up"></i>
+              </button>
+            </form>
+            <span class="like-count"><%= complaint.likes %></span>
+          </div>
+        </div>
+        <% }); %>
+        <% } %>
+      </div>
     </main>
-</body>
 
+    <!-- ✅ SweetAlert Toasts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      const message = <%- JSON.stringify(message || null) %>;
+      const error = <%- JSON.stringify(error || null) %>;
+
+      if (message) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: message.type || 'success',
+          title: message.text || 'Success!',
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true,
+        });
+      }
+
+      if (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error,
+          confirmButtonColor: '#007bff',
+        });
+      }
+    </script>
+  </body>
 </html>
